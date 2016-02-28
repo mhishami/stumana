@@ -1,0 +1,2 @@
+# stumana
+Student Management App

@@ -1,0 +1,14 @@
+ebin/*
+deps/*
+_rel
+rel
+relx
+relx.config
+.erlang.mk/
+stumana.d
+.stumana.plt
+logs
+_rel/
+deps/
+.rebar/
+log/

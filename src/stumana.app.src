@@ -1,0 +1,46 @@
+{application, stumana, [
+    {description, ""},
+    {vsn, "0.1.0"},
+    {modules, []},
+    {registered, [stumana_sup]},
+    {applications, [
+                kernel,
+                stdlib,
+                crypto,
+                mnesia,
+                tuah,
+                sync,
+                cowboy,
+                erlydtl,
+                jsx,
+                lager,
+                cowlib,
+                ranch,
+                bson,
+                pbkdf2,
+                mongodb,
+                srly,
+                qdate,
+                erlang_localtime,
+                erlware_commons,
+                cf,
+                termcap
+    ]},
+    {mod, {stumana_app, []}},
+    {env, [
+        {http, [{port, 8080}]},
+        {pools, [
+            {stumana, [
+            {size, 10},
+            {max_overflow, 30}
+        ], [
+            {database, <<"stumana">>},
+            {w_mode, safe}
+            ]}
+        ]},
+        {serial, [
+            {device, "/dev/cu.usbmodem1411"}, 
+            {speed, b115200}
+        ]}
+    ]}
+]}.

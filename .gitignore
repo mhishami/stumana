@@ -12,3 +12,4 @@ _rel/
 deps/
 .rebar/
 log/
+npm-debug.log

@@ -1,0 +1,131 @@
+
+<div id="content">
+  <br/>
+  <div class="ui grid stackable container">
+    <div class="ui ordered steps">
+      <div class="active step">
+        <i class="food icon"></i>
+        <div class="content">
+          <div class="title">Selections</div>
+          <div class="description">Choose your items</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Confirm Order</div>
+          <div class="description">Confirm your items</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Pay</div>
+          <div class="description">Scan card for payment</div>
+        </div>
+      </div>
+    </div>  
+    <!-- <div class="ui horizontal divider"></div> -->
+  </div>
+  <div class="ui grid middle align stackable container">
+    <div class="ten wide column">
+      <div class="ui grid" data-bind="foreach:products">
+        <!-- iterate each food product -->
+        <div class="four wide column">
+          <div class="ui segment">
+            <h5 data-bind="text: name"></h5>
+            <p>RM <span data-bind="text: price"></span></p>
+            <a href="#" data-bind="click: $parent.addToCart" class="ui green button">Add</a>
+          </div>
+        </div>     
+        <!-- end iteration    -->
+      </div>
+    </div>
+    <div class="six wide column">
+      <h2 class="ui header">
+        <i class="cart icon"></i>
+        <div class="content">Cart</div>
+      </h2>
+      <table class="ui very basic collapsible celled table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach:cart">
+          <tr>
+            <td><span data-bind="text: product().name"></span></td>
+            <td><span data-bind="text: product().price"></span></td>
+            <td><input style="width: 40px;" data-bind="value: quantity"></input></td>
+            <td><span data-bind="text: fmtCurr(cost())"></span></td>
+            <td><a href="#" class="ui mini red button" data-bind="click: $parent.removeFromCart">Remove</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <div>
+        <h2>Sub-Total: RM <span data-bind="text: subtotal"></span></h2>
+        <hr/>
+        <button class="ui blue big button">Proceed to Pay <i class="arrow right icon"></i></button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="text/javascript">
+
+    function fmtCurr(value) {
+      return "RM " + value.toFixed(2);
+    }
+
+    var Product = function(id, name, price) {
+      this.id = ko.observable(id);
+      this.name = ko.observable(name);
+      this.price = ko.observable(price);
+    };
+
+    var CartItem = function(product, quantity) {
+      var self = this;
+      self.product = ko.observable(product);
+      self.quantity = ko.observable(quantity || 1);
+      self.cost = ko.computed(function() {
+        return self.product().price() * self.quantity();
+      });
+    };
+
+    var ViewModel = function() {
+      var self = this;
+
+      self.cart = ko.observableArray();
+      self.products = ko.observableArray();
+      self.subtotal = ko.computed(function() {
+        var subtotal = 0;
+        $(self.cart()).each(function(index, cart_item) {
+          subtotal += cart_item.cost();
+        });
+        return subtotal;
+      });
+
+      // cart operation
+      self.addToCart = function(product, evt) {
+        var cart_item = new CartItem(product, 1);
+        self.cart.push(cart_item);
+      };
+      self.removeFromCart = function(cart_item, evt) {
+        self.cart.remove(cart_item);
+      };
+    };
+
+    var vm = new ViewModel();
+    vm.products([
+          new Product(1, "Nasi Lemak", 2.5),
+          new Product(2, "Mee Goreng", 3),
+          new Product(3, "Nasi Ayam", 4),
+          new Product(4, "Bubur", 2.5)
+        ]);
+    ko.applyBindings(vm);
+
+  </script>
+
+</div>

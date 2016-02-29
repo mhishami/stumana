@@ -18,8 +18,9 @@ before_filter(_SessionId) ->
     %         {ok, proceed}
     % end.
 
-handle_request(<<"GET">>, _Action, _Args, _Params, _Req) ->
-    {render, <<"student">>, []};
+handle_request(<<"GET">>, Page, _Args, _Params, _Req) ->
+    ?DEBUG("Page: ~p", [Page]),
+    {render, Page, []};
 
 handle_request(<<"POST">>, <<"add">>, _Args, Params, _Req) ->
     PostVals = maps:get(<<"qs_body">>, Params),

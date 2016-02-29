@@ -9,8 +9,13 @@
 before_filter(_SessionId) ->
     {ok, proceed}.
 
-handle_request(<<"GET">>, _Action, _Args, Params, _Req) ->
-    Username = maps:get(<<"auth">>, Params),
-    {render, <<"home">>, [{user, Username}, {menu_home, <<"active">>}]}.
+handle_request(<<"GET">>, <<"content">>, _Args, _Params, _Req) ->
+    {render, <<"home">>, []};
+
+handle_request(<<"GET">>, <<"cafe">>, _Args, _Params, _Req) ->
+    {render, <<"cafe">>, []};
+
+handle_request(_Method, _Action, _Args, _Params, _Req) ->
+    {render, <<"layout">>, []}.
 
 

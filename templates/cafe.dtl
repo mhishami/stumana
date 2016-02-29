@@ -33,7 +33,7 @@
           <div class="ui segment">
             <h5 data-bind="text: name"></h5>
             <p>RM <span data-bind="text: price"></span></p>
-            <a href="#" data-bind="click: $parent.addToCart" class="ui green button">Add</a>
+            <a href="#" data-bind="click: $parent.addToCart" class="ui green button">Add <i class="arrow right icon"></i></a>
           </div>
         </div>     
         <!-- end iteration    -->
@@ -58,16 +58,29 @@
           <tr>
             <td><span data-bind="text: product().name"></span></td>
             <td><span data-bind="text: product().price"></span></td>
-            <td><input style="width: 40px;" data-bind="value: quantity"></input></td>
+            <td>
+              <div class="ui right labeled input">
+                <div class="ui label" data-bind="click: decr">
+                  <a class="button"><i class="minus icon"></i></a>
+                </div>
+<input style="width: 100px;" data-bind="value: quantity"></input>
+                <div class="ui label" data-bind="click: incr">
+                  <a class="button"><i class="plus icon"></i></a>
+                </div>
+              </div>
+            </td>
             <td><span data-bind="text: fmtCurr(cost())"></span></td>
             <td><a href="#" class="ui mini red button" data-bind="click: $parent.removeFromCart">Remove</a></td>
           </tr>
         </tbody>
       </table>
-      <div>
-        <h2>Sub-Total: RM <span data-bind="text: subtotal"></span></h2>
-        <hr/>
-        <button class="ui blue big button">Proceed to Pay <i class="arrow right icon"></i></button>
+
+      <div class="ui left action input">
+        <button class="ui teal labeled icon button">
+          <i class="cart icon"></i>
+          Checkout
+        </button>
+        <input data-bind="value: subtotal" type="text" />
       </div>
 
     </div>
@@ -92,6 +105,13 @@
       self.cost = ko.computed(function() {
         return self.product().price() * self.quantity();
       });
+
+      self.incr = function(quantity) {
+        return self.quantity + 1;
+      };
+      self.decr = function(quantity) {
+        return self.quantity + 1;
+      };
     };
 
     var ViewModel = function() {

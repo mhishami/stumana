@@ -1,19 +1,14 @@
+{% extends "layout.dtl" %}
 
+{% block content %}
 <div id="content">
   <br/>
   <div class="ui grid stackable container">
     <div class="ui ordered steps">
       <div class="active step">
-        <i class="food icon"></i>
         <div class="content">
           <div class="title">Selections</div>
           <div class="description">Choose your items</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="content">
-          <div class="title">Confirm Order</div>
-          <div class="description">Confirm your items</div>
         </div>
       </div>
       <div class="step">
@@ -32,7 +27,7 @@
         <div class="four wide column">
           <div class="ui segment">
             <h5 data-bind="text: name"></h5>
-            <p>RM <span data-bind="text: price"></span></p>
+            <p><span data-bind="text: fmt(price())"></span></p>
             <a href="#" data-bind="click: $parent.addToCart" class="ui green button">Add <i class="arrow right icon"></i></a>
           </div>
         </div>     
@@ -42,55 +37,51 @@
     <div class="six wide column">
       <h2 class="ui header">
         <i class="cart icon"></i>
-        <div class="content">Cart</div>
+        <div class="content">Cart Items</div>
       </h2>
       <table class="ui very basic collapsible celled table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Price</th>
+            <th>Price     </th>
             <th>Quantity</th>
             <th>Subtotal</th>
             <th></th>
           </tr>
         </thead>
-        <tbody data-bind="foreach:cart">
+        <tbody id="lineItem" data-bind="foreach:cart">
           <tr>
             <td><span data-bind="text: product().name"></span></td>
-            <td><span data-bind="text: product().price"></span></td>
+            <td><span data-bind="text: fmt(product().price())"></span></td>
             <td>
-              <div class="ui right labeled input">
-                <div class="ui label" data-bind="click: decr">
-                  <a class="button"><i class="minus icon"></i></a>
-                </div>
-<input style="width: 100px;" data-bind="value: quantity"></input>
-                <div class="ui label" data-bind="click: incr">
-                  <a class="button"><i class="plus icon"></i></a>
-                </div>
-              </div>
+              <input style="width: 50px;" data-bind="value: quantity"></input>
             </td>
-            <td><span data-bind="text: fmtCurr(cost())"></span></td>
+            <td><span data-bind="text: fmt(cost())"></span></td>
             <td><a href="#" class="ui mini red button" data-bind="click: $parent.removeFromCart">Remove</a></td>
           </tr>
         </tbody>
       </table>
 
+      <h5>GST: <span id="gst" data-bind="text: fmt(gst_charges())"></span></h5>
       <div class="ui left action input">
-        <button class="ui teal labeled icon button">
+        <button data-bind="click: checkout" class="ui teal labeled icon button">
           <i class="cart icon"></i>
           Checkout
         </button>
-        <input data-bind="value: subtotal" type="text" />
+        <input id="total" data-bind="value: fmt(total())" type="text" />
       </div>
 
     </div>
   </div>
+</div>
+{% endblock %}
 
+{% block script %}
   <script type="text/javascript">
 
-    function fmtCurr(value) {
-      return "RM " + value.toFixed(2);
-    }
+    var fmt = function(value) {
+      return "RM " + Number(value).toFixed(2);
+    };
 
     var Product = function(id, name, price) {
       this.id = ko.observable(id);
@@ -105,17 +96,12 @@
       self.cost = ko.computed(function() {
         return self.product().price() * self.quantity();
       });
-
-      self.incr = function(quantity) {
-        return self.quantity + 1;
-      };
-      self.decr = function(quantity) {
-        return self.quantity + 1;
-      };
     };
 
     var ViewModel = function() {
       var self = this;
+
+      self.gst = ko.observable(0.06);
 
       self.cart = ko.observableArray();
       self.products = ko.observableArray();
@@ -125,6 +111,12 @@
           subtotal += cart_item.cost();
         });
         return subtotal;
+      });
+      self.gst_charges = ko.computed(function() {
+        return self.subtotal() * self.gst() || 0;
+      });
+      self.total = ko.computed(function() {
+        return self.subtotal() + self.gst_charges();
       });
 
       // cart operation
@@ -137,15 +129,50 @@
       };
     };
 
+    var checkout = function() {
+      var self = this;
+
+      self.items = [];
+      $('#lineItem').find('tr').each(function(k,v) {
+        var $tds = $(this).find('td'),
+            name = $tds.eq(0).text(),
+            price = $tds.eq(1).text(),
+            quantity = $tds.eq(2).find('input').val(),
+            cost = $tds.eq(3).text();
+        self.items.push(
+          {name: name, price: price, quantity: quantity, cost: cost}
+        );
+      });
+      console.log(self.items);
+      localStorage.setItem("items", JSON.stringify(self.items));
+      localStorage.setItem("gst", $('#gst').text());
+      localStorage.setItem("total", $('#total').val());
+      
+      // console.log(localStorage.getItem("items"));
+
+      // ok, we fetch the checkout page.
+      // $.get("/home/checkout", function(template) {
+      //   var rendered = Mustache.render(template, {});
+      //   $('#content').html(rendered);
+      // });      
+      window.location.assign("/home/checkout");
+
+    };
+    // console.log(checkout());
+ 
     var vm = new ViewModel();
     vm.products([
           new Product(1, "Nasi Lemak", 2.5),
-          new Product(2, "Mee Goreng", 3),
-          new Product(3, "Nasi Ayam", 4),
-          new Product(4, "Bubur", 2.5)
+          new Product(2, "Mee Goreng", 3.0),
+          new Product(3, "Nasi Ayam", 4.0),
+          new Product(4, "Bubur", 2.5),
+          new Product(5, "Teh", 1.50),
+          new Product(6, "Milo", 2.0),
+          new Product(7, "Horlick", 2.0),
+          new Product(8, "Nescafe", 2.5)
         ]);
     ko.applyBindings(vm);
 
   </script>
+{% endblock %}
 
-</div>

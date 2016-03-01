@@ -1,0 +1,197 @@
+{% extends "layout.dtl" %}
+
+{% block content %}
+<div id="content">
+  <br/>
+  <div class="ui grid stackable container">
+    <div class="ui ordered steps">
+      <div class="completed step">
+        <div class="content">
+          <div class="title">Selections</div>
+          <div class="description">Choose your items</div>
+        </div>
+      </div>
+      <div class="active step">
+        <div class="content">
+          <div class="title">Pay</div>
+          <div class="description">Scan card for payment</div>
+        </div>
+      </div>
+    </div>  
+    <!-- <div class="ui horizontal divider"></div> -->
+  </div>
+  <div class="ui grid stackable container">
+    <div class="six wide column">
+      <div class="ui icon message" id="loading">
+        <i class="notched circle loading icon"></i>
+        <div class="content">
+          <div class="header">
+            Touch your card
+          </div>
+          <p>We're fetching the info for you</p>
+        </div>
+      </div> 
+    </div>
+    <div class="ten wide column">
+      <table class="ui table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Sub Total</th>            
+          </tr>
+        </thead>
+        <tbody data-bind="foreach: items">
+          <tr>
+            <td><span data-bind="text: name"></span></td>
+            <td><span data-bind="text: price"></span></td>
+            <td><span data-bind="text: quantity"></span></td>
+            <td><span data-bind="text: cost"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+
+  <!-- template -->
+  <script type="text/html" id="user-card">
+    <div class="ui grid">
+      <h2 class="ui header">
+        <i class="table icon"></i>
+        <div class="content">
+          User Details
+        </div>
+      </h2>
+      <div class="row">
+        <div class="ui list">
+          <div class="item">
+            <i class="user icon"></i>
+            <div class="content">
+              {{ first }} {{ last }}
+            </div>
+          </div>
+          <div class="item">
+            <i class="marker icon"></i>
+            <div class="content">
+              No 4, Jalan Budiman 6
+            </div>
+          </div>
+          <div class="item">
+            <i class="student icon"></i>
+            <div class="content">
+              Student ID
+            </div>
+          </div>
+          <div class="item">
+            <i class="flag icon"></i>
+            <div class="content">
+              National ID
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </script>
+
+  <script type="text/javascript">
+
+    var no_such_user = `
+      <div id="loading" class="negative ui message">
+        <i class="close icon"></i>
+        <div class="header">
+          No such user exists.
+        </div>
+        <p>Please register the user, and reload the purse.</p>
+      </div>
+    `;
+
+    var insuf_balance = `
+      <div id="loading" class="negative ui message">
+        <i class="close icon"></i>
+        <div class="header">
+          Insufficient Balance.
+        </div>
+        <p>Please reload your electronic purse.</p>
+      </div>
+    `;
+
+    $().ready(function() {
+      websocket = new WebSocket("ws://localhost:8080/ws");
+      websocket.onmessage = function(evt) {
+        if (evt.data != "Reading...") {
+          console.log("evt.data= " + evt.data);
+          var uid = evt.data.split(" ").join("");
+          $.getJSON("/api/students/" + uid, function(data) {
+            if (data == "") {
+              $('#loading').html(no_such_user);
+            } else {
+              // check for balance
+              var rm = localStorage.getItem("total").split("RM");
+              var total = Number(rm[1]);
+  var simple = 
+    '<div id="loading" class="ui cards">' +
+    '  <div class="card">' +
+    '    <div class="content">' +
+    '      <div class="header">' + 
+    data.first + ' ' + data.last + 
+    '      </div><hr/>' +
+    '      <div class="description">' +
+    data.address1 + '<br />' +
+    data.address2 + '<br />' +
+    data.postcode + '<br />' +
+    '      </div><hr/>' +
+    '      <div class="description">' +
+    fmt(data.balances) +
+    '      </div>' +
+    '    </div>' +
+    '    <div class="ui bottom attached blue button">' +
+    '      <i class="money icon"></i>' +
+    '      Pay' +
+    '    </div>' +
+    '  </div>' +
+    '</div>';
+
+              if (data.balances < total) {
+                $('#loading').html(insuf_balance);
+              } else {
+                $('#loading').html(simple);
+              }
+            }
+          });
+        }
+      };
+
+    });
+
+    function fmt(value) {
+      return "RM " + value.toFixed(2);
+    }
+
+    var Item = function(name, price, quantity, cost) {
+      this.name = name;
+      this.price = price;
+      this.quantity = quantity;
+      this.cost = cost;
+    };
+
+    var ModelView = function() {
+      self.items = [];
+
+      $.each(JSON.parse(localStorage.getItem("items")), function(idx, data) {
+        self.items.push(
+          new Item(data.name, data.price, data.quantity, data.cost)
+          );
+      });
+      self.items.push(new Item("GST", null, null, localStorage.getItem("gst")));
+      self.items.push(new Item("TOTAL", null, null, localStorage.getItem("total")));
+
+    };
+    ko.applyBindings(new ModelView());
+  </script>
+
+{% endblock %}

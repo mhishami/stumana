@@ -1,9 +1,10 @@
 
 <div id="content">
+  <br/>
   <div class="ui grid middle align stackable container">
     <div class="one column">
       <div id="pointing" class="ui pointing menu">
-        <a id="checkin" class="item">Check-In</a>
+        <a id="checkin" class="item" href="/student/checkin">Check-In</a>
         <a id="attendance" class="active item">Attendance</a>
       </div>    
     </div>
@@ -19,19 +20,12 @@
     $().ready(function() {
       $('#header').text("Attendance for UID: " + uid);    
 
-      $('#checkin').click(function() {
-        $.get("/student/checkin", function(template) {
-          var rendered = Mustache.render(template, {});
-          $('#content').html(rendered);
-        });
-      });
-
       $('#attendance').click(function() {
         $.get("/student/attendance", function(template) {
           var rendered = Mustache.render(template, {});
           $('#content').html(rendered);
         });
-      });      
+      });
 
     });
 
@@ -55,3 +49,4 @@
 
   </script>  
 </div>
+

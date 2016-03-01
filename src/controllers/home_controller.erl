@@ -15,6 +15,12 @@ handle_request(<<"GET">>, <<"content">>, _Args, _Params, _Req) ->
 handle_request(<<"GET">>, <<"cafe">>, _Args, _Params, _Req) ->
     {render, <<"cafe">>, []};
 
+handle_request(<<"GET">>, <<"checkout">>, _Args, _Params, _Req) ->
+    {render, <<"checkout">>, []};
+
+handle_request(<<"GET">>, <<"reload">>, _Args, _Params, _Req) ->
+    {render, <<"reload">>, []};
+
 handle_request(_Method, _Action, _Args, _Params, _Req) ->
     {render, <<"layout">>, []}.
 

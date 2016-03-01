@@ -1,10 +1,13 @@
+{% extends "layout.dtl" %}
 
+{% block content %}
 <div id="content">
+  <br/>
   <!-- the menu -->
   <div class="ui grid middle align stackable container">
     <div class="one column">
       <div id="pointing" class="ui pointing menu">
-        <a id="checkin" class="active item">Check-In</a>
+        <a id="checkin" class="active item" href="/student/checkin">Check-In</a>
         <a id="attendance" class="item">Attendance</a>
       </div>    
     </div>
@@ -15,6 +18,26 @@
       <div class="ui statistic">
         <div class="value" id="uid">Touch Card...</div>
         <div class="label">Card UID</div>
+      </div>
+
+      <!-- Show the balance -->
+      <div class="ui segment">
+        <div class="content">
+          <h2 class="ui header">
+            <i class="right floated money icon"></i>
+            <div class="content">
+              Electronic Purse              
+            </div>
+          </h2>
+          <h3 id="emoney">Loading...</h3>
+          <div class="ui left action input">
+            <button class="ui teal labeled icon button">
+              <i class="money icon"></i>
+              Reload
+            </button>
+            <input id="amount" name="amount" type="text" />
+          </div>    
+        </div>
       </div>
     </div>
     <div class="ten wide column">
@@ -84,8 +107,13 @@
       </div>
     </div>
   </div>
+</div>
+{% endblock %}
 
+{% block script %}
   <script type="text/javascript">
+    var uid;
+
     $().ready(function() {
       
       var websocket = new WebSocket("ws://localhost:8080/ws");
@@ -120,8 +148,6 @@
           $('#content').html(rendered);
         });
       });
-
-
 
       // $('form').submit(function(evt) {
       //   evt.preventDefault();
@@ -164,6 +190,21 @@
       }
     }
 
+    function fmt(value) {
+      return "RM " + value.toFixed(2);
+    }
+
+    var tpl = `
+      <h4>{{balance}}</h4>
+      <div class="ui left action input">
+        <button class="ui teal labeled icon button">
+          <i class="money icon"></i>
+          Reload
+        </button>
+        <input id="amount" name="amount" type="text" />
+      </div>    
+    `;
+
     function check_data(q) {
       // fetch user data from db
       uid = q.split(" ").join("");
@@ -174,14 +215,17 @@
         console.log(">> Data: '" + data + "'");
         if (data == "") {
           // clear the rotating...
-          $('#loading').replaceWith(
-            "<div class='ui negative message' id='loading'>" +
-            " <i class='close icon'></i>" +
-            " <div class='header'>" +
-            "   It seems that no such user exists." +
-            " </div>" +
-            " <p>Please create the new user below</p>" +
-            "</div>");
+          var no_such_user = `
+            <div id="loading" class="negative ui message">
+              <i class="close icon"></i>
+              <div class="header">
+                It seems that no such user exists.
+              </div>
+              <p>Please register the new user below.</p>
+            </div>
+          `;
+
+          $('#loading').html(Mustache.render(no_such_user, {}));
 
           $('form').form('clear');
           $('#add-student').show();
@@ -195,10 +239,13 @@
           });          
           $('#add-student').hide();
           $('#reset').hide();
+
+          // load the emoney info
+          $('#emoney').text(fmt(data.balances));
         }
       });
     }
 
   </script>
     
-</div>
+{% endblock %}

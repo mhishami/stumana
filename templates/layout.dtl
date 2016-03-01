@@ -18,10 +18,10 @@
 <!-- Following Menu -->
 <div class="ui inverted  top fixed menu">
   <div class="ui container">
-    <a class="active item" id="home"><i class="home icon"></i> Home</a>
-    <a class="item" id="student"><i class="student icon"></i> Student</a>
-    <a class="item" id="student"><i class="money icon"></i> Reload</a>
-    <a id="cafe" class="item"><i class="bar icon"></i> Cafe</a>
+    <a class="active item" id="home" href="/"><i class="home icon"></i> Home</a>
+    <a class="item" id="student" href="/student/checkin"><i class="student icon"></i> Student</a>
+    <a class="item" id="reload" href="/home/reload"><i class="money icon"></i> Reload</a>
+    <a id="cafe" class="item" href="/home/cafe"><i class="bar icon"></i> Cafe</a>
     <a id="library" class="item"><i class="book icon"></i> Library</a>
   </div>
 </div>
@@ -30,8 +30,8 @@
 <div class="pusher">
   <br/><br/><br/><br/>
   <div class="ui segment">
-    <div id="content">
     {% block content %}
+    <div id="content">
       <div class="ui vertical stripe segment">
         <div class="ui middle aligned stackable grid container">
           <div class="row">
@@ -52,8 +52,8 @@
           </div>
         </div>
       </div>
-    {% endblock %}
     </div>
+    {% endblock %}
   </div>
 
   <div class="ui  vertical footer segment">
@@ -87,8 +87,10 @@
 <script src="/static/extra/semantic/dist/components/dropdown.js"></script>
 <script src="/static/extra/semantic/dist/components/transition.js"></script>
 <script type="text/javascript" src="/static/extra/Chart.js/Chart.min.js"></script>
-<script type="text/javascript" src="/static/extra/Chart.js/Chart.min.js"></script>
-<script type="text/javascript" src="/static/extra/knockout/knockout.min.js"></script>
+<script type="text/javascript" src="/static/extra/knockout/dist/knockout.js"></script>
+
+{% block script %}
+{% endblock %}
 
 <script type="text/javascript">
   var uid;
@@ -98,26 +100,26 @@
       on: 'hover'
     });
 
-    $('#home').click(function() {
-      $.get("/home/content", function(template) {
-        var rendered = Mustache.render(template, {});
-        $('#content').html(rendered);
-      });
-    });
+    // $('#home').click(function() {
+    //   $.get("/home/content", function(template) {
+    //     var rendered = Mustache.render(template, {});
+    //     $('#content').html(rendered);
+    //   });
+    // });
 
-    $('#cafe').click(function() {
-      $.get("/home/cafe", function(template) {
-        var rendered = Mustache.render(template, {});
-        $('#content').html(rendered);
-      });
-    });
+    // $('#cafe').click(function() {
+    //   $.get("/home/cafe", function(template) {
+    //     var rendered = Mustache.render(template, {});
+    //     $('#content').html(rendered);
+    //   });
+    // });
 
-    $('#student').click(function() {
-      $.get("/student/checkin", function(template) {
-        var rendered = Mustache.render(template, {});
-        $('#content').html(rendered);
-      });
-    });
+    // $('#student').click(function() {
+    //   $.get("/student/checkin", function(template) {
+    //     var rendered = Mustache.render(template, {});
+    //     $('#content').html(rendered);
+    //   });
+    // });
 
     $('.item').click(function() {
       if (!$(this).hasClass('dropdown'))

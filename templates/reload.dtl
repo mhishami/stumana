@@ -1,0 +1,121 @@
+{% extends "layout.dtl" %}
+
+{% block content %}
+<div id="content">
+  <br/>
+  <div class="ui grid stackable container">
+    <div class="eight wide column">
+      <div class="ui icon message" id="loading">
+        <i class="notched circle loading icon"></i>
+        <div class="content">
+          <div class="header">
+            Touch your card
+          </div>
+          <p>We're fetching the info for you</p>
+        </div>
+      </div> 
+    </div>
+    <div class="eight wide column">
+      <h2 class="ui header">
+        <i class="student icon"></i>
+        <div class="content">
+          Personal Info
+        </div>
+      </h2>
+      <table class="ui table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Name</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>  
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+  var uid;
+
+  var no_such_user = `
+    <div id="loading" class="negative ui message">
+      <i class="close icon"></i>
+      <div class="header">
+        No such user exists.
+      </div>
+      <p>Please register the user, and reload the purse.</p>
+    </div>
+  `;
+
+  var user_card = `
+    <div class="ui grid">
+      <h2 class="ui header">
+        <i class="table icon"></i>
+        <div class="content">
+          User Details
+        </div>
+      </h2>
+      <div class="row">
+        <div class="ui list">
+          <div class="item">
+            <i class="user icon"></i>
+            <div class="content">
+              {{ first }} {{ last }}
+            </div>
+          </div>
+          <div class="item">
+            <i class="marker icon"></i>
+            <div class="content">
+              No 4, Jalan Budiman 6
+            </div>
+          </div>
+          <div class="item">
+            <i class="student icon"></i>
+            <div class="content">
+              Student ID
+            </div>
+          </div>
+          <div class="item">
+            <i class="flag icon"></i>
+            <div class="content">
+              National ID
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  $().ready(function() {
+    websocket = new WebSocket("ws://localhost:8080/ws");
+    websocket.onmessage = function(evt) {
+      if (evt.data != "Reading...") {
+        console.log("evt.data= " + evt.data);
+        var uid = evt.data.split(" ").join("");
+        fetch_user_info(uid);
+      }
+    };
+  });
+
+  function fetch_user_info(uid) {
+    $.getJSON("/api/students/" + uid, function(data) {
+      if (data == "") {
+        $('#loading').html(no_such_user);
+      } else {
+        var out = Mustache.render(user_card, data);
+        $('#loading').html(out);
+      }
+    });    
+  }
+
+
+</script>
+{% endblock %}

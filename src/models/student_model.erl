@@ -54,5 +54,11 @@ ensure_index() ->
 
 format_ts(Model) ->
     UpdatedTS = [{C, qdate:to_date(maps:get(C, Model))} || C <- [<<"updated_at">>, <<"created_at">>]],
-    maps:merge(Model, maps:from_list(UpdatedTS)).
+    FixedId = [{<<"id">>, maps:get(<<"_id">>, Model)}],
+    ?DEBUG("UpdatedTS = ~p", [UpdatedTS]),
+    ?DEBUG("FixedId = ~p", [FixedId]),
+    M = maps:merge(Model, maps:from_list(lists:append(UpdatedTS, FixedId))),
+    maps:remove(<<"_id">>, M).
+    
+
 
